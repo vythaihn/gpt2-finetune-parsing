@@ -226,7 +226,7 @@ def main():
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
 
     if args.train:
-        for epoch in args.epochs:
+        for epoch in range(args.epochs):
             print("Training epoch ", epoch, "...")
             train_epoch()
             eval_epoch()
