@@ -30,7 +30,7 @@ def tokenize_seq(sent, tokenizer, max_length):
     return tokenizer(sent, truncation=True, max_length=max_length, padding="max_length")
 class ParsingDataset(Dataset):
 
-    def __init__(self, sentences, tokenizer, gpt2_type="gpt2", max_length=max_len):
+    def __init__(self, sentences, tokenizer, gpt2_type="gpt2", max_length=1000):
         self.tokenizer = tokenizer
         self.input_ids = []
         self.attn_masks = []
