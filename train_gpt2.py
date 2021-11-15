@@ -89,6 +89,8 @@ def main():
                         help='learning rate')
     parser.add_argument('--save-model', default="test",
                         help='saves the current model at path')
+    parser.add_argument('--continue-train', action='store_true', default=False,
+                        help='saves the current model at path')
     parser.add_argument('--tokenizer', default="tokenizer/tokenizer_bert",
                         help='saves the current model at path')
     parser.add_argument('--model-name', default="gpt2", choices=["gpt2", "gpt-neo-vi-small", "gpt2-viwiki"],
@@ -197,6 +199,9 @@ def main():
         """
         TODO:
         """
+    if args.continue_train:
+        model.load_state_dict(torch.load("saved_model/"+ args.save_model+ "_" + args.model_name + '.pt'))
+
 
     train_file = "stanza_dataset/vi_vlsp21_train.brackets"
     new_token_list, train_sents = process_data(train_file)
