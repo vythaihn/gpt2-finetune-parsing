@@ -57,27 +57,7 @@ gc.collect()
 
 
     # Training settings
-parser = argparse.ArgumentParser(description='CIFAR-10 dataset')
-parser.add_argument('--batch-size', type=int, default=4,
-                    help='input batch size for training')
-parser.add_argument('--data-dir', default='data',
-                    help='directory that contains cifar-10-batches-py/ '
-                    '(downloaded automatically if necessary)')
-parser.add_argument('--epochs', type=int, metavar='N',
-                    help='number of epochs to train')
-parser.add_argument('--lr', type=float, metavar='LR',default=0.0005,
-                    help='learning rate')
-parser.add_argument('--save-model', default="test",
-                    help='saves the current model at path')
-parser.add_argument('--tokenizer', default="tokenizer/tokenizer_bert",
-                    help='saves the current model at path')
-parser.add_argument('--model-name', default="gpt2", choices=["gpt2", "gpt-neo-vi-small", "gpt2-viwiki"],
-                    help='saves the current model at path')
-parser.add_argument('--train', action='store_true', default=False,
-                    help='saves the current model at path')
-parser.add_argument('--eval', action='store_true', default=False,
-                    help='saves the current model at path')
-args = parser.parse_args()
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
@@ -97,6 +77,28 @@ def process_data(filename):
     return new_token_list, all_sentences
 
 def main():
+    parser = argparse.ArgumentParser(description='CIFAR-10 dataset')
+    parser.add_argument('--batch-size', type=int, default=4,
+                        help='input batch size for training')
+    parser.add_argument('--data-dir', default='data',
+                        help='directory that contains cifar-10-batches-py/ '
+                             '(downloaded automatically if necessary)')
+    parser.add_argument('--epochs', type=int, metavar='N',
+                        help='number of epochs to train')
+    parser.add_argument('--lr', type=float, metavar='LR', default=0.0005,
+                        help='learning rate')
+    parser.add_argument('--save-model', default="test",
+                        help='saves the current model at path')
+    parser.add_argument('--tokenizer', default="tokenizer/tokenizer_bert",
+                        help='saves the current model at path')
+    parser.add_argument('--model-name', default="gpt2", choices=["gpt2", "gpt-neo-vi-small", "gpt2-viwiki"],
+                        help='saves the current model at path')
+    parser.add_argument('--train', action='store_true', default=False,
+                        help='saves the current model at path')
+    parser.add_argument('--eval', action='store_true', default=False,
+                        help='saves the current model at path')
+    args = parser.parse_args()
+    
 
     def eval_keywords(keywords):
         model.eval()
