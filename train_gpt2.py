@@ -200,7 +200,9 @@ def main():
         TODO:
         """
     if args.continue_train:
+        print("Continue training...")
         model.load_state_dict(torch.load("saved_model/"+ args.save_model+ "_" + args.model_name + '.pt'))
+        eval_keywords(keywords)
 
 
     train_file = "stanza_dataset/vi_vlsp21_train.brackets"
