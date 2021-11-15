@@ -232,14 +232,16 @@ def main():
     # model.cuda()
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
 
-    if args.train:
+    if args.train or args.continue_train:
         for epoch in range(args.epochs):
             print("Training epoch ", epoch, "...")
             train_epoch()
             eval_epoch()
             eval_keywords(keywords)
-
-        torch.save(model.state_dict(), "saved_model/" + args.save_model  + "_" + args.model_name + '.pt')
+        if args.train:
+            torch.save(model.state_dict(), "saved_model/" + args.save_model  + "_" + args.model_name + '.pt')
+        else:
+            torch.save(model.state_dict(), "saved_model/" + "continued_" + args.save_model  + "_" + args.model_name + '.pt')
 
 if __name__ == "__main__":
     main()
