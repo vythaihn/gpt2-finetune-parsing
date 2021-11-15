@@ -98,7 +98,7 @@ def main():
     parser.add_argument('--eval', action='store_true', default=False,
                         help='saves the current model at path')
     args = parser.parse_args()
-    
+
 
     def eval_keywords(keywords):
         model.eval()
@@ -235,6 +235,7 @@ def main():
 
         torch.save(model.state_dict(), "saved_model/" + args.save_model  + "_" + args.model_name + '.pt')
 
-
+if __name__ == "__main__":
+    main()
 
 
