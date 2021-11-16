@@ -171,7 +171,11 @@ def main():
         print("elapsed time for 1 eval epoch : ", elapsed_time)
 
     if not args.create_tokenizer:
-        tokenizer = AutoTokenizer.from_pretrained(args.tokenizer)
+
+        if args.model_name=="gpt-neo-vi-small":
+            tokenizer = GPT2Tokenizer.from_pretrained(args.tokenizer)
+        else:
+            tokenizer = AutoTokenizer.from_pretrained(args.tokenizer)
 
         val_file = "stanza_dataset/vi_vlsp21_dev.brackets"
         _, val_sents = process_data(val_file)
