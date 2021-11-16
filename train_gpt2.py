@@ -66,18 +66,24 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 #train epoch for now
 
-def process_data(filename):
+def process_data(filename, tokenizer_type):
     new_token_list = set()
     with open(filename) as file:
         lines = file.readlines()
         all_sentences = [line.strip() for line in lines]
+        new_sentences = []
         for each_sent in all_sentences:
             words = each_sent.split()
             new_tokens = {word for word in words if ("(_" in word or ")_" in word)}
             # print(new_tokens)
             new_token_list.update(new_tokens)
 
-    return new_token_list, all_sentences
+            if tokenizer_type!="tokenizer/tokenizer_bert":
+                new_sent = " ".join([word.replace("_"," ") for word in words if ("(_" not in word and ")_" not in word)])
+                new_sentences.append(new_sent)
+    data = all_sentences if tokenizer_type == "tokenizer/tokenizer_bert" else new_sentences
+    
+    return new_token_list, data
 
 def main():
     parser = argparse.ArgumentParser(description='CIFAR-10 dataset')
@@ -181,7 +187,7 @@ def main():
             tokenizer = AutoTokenizer.from_pretrained(args.tokenizer)
 
         val_file = "stanza_dataset/vi_vlsp21_dev.brackets"
-        _, val_sents = process_data(val_file)
+        _, val_sents = process_data(val_file, args.tokenizer)
         max_len_val = max([len(tokenizer.encode(s)) for s in val_sents])
         print(f"max_len_val {max_len_val}")
         tok_type = "bert" if args.tokenizer == "tokenizer/tokenizer_bert" else "difff"
@@ -217,7 +223,7 @@ def main():
 
 
     train_file = "stanza_dataset/vi_vlsp21_train.brackets"
-    new_token_list, train_sents = process_data(train_file)
+    new_token_list, train_sents = process_data(train_file, args.tokenizer)
 
     if args.create_tokenizer:
         # add new tokens into the tokenizer
