@@ -213,6 +213,14 @@ def main():
 
     if args.create_tokenizer:
         # add new tokens into the tokenizer
+        if args.model_name=="gpt2":
+            tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+        elif args.model_name=="gpt-neo-vi-small":
+            tokenizer = GPT2Tokenizer.from_pretrained("NlpHUST/gpt-neo-vi-small")
+        #elif args.model_name=="gpt2-viwiki":
+        #    model = GPT2LMHeadModel.from_pretrained('danghuy1999/gpt2-viwiki')
+        #tokenizer = AutoTokenizer.from_pretrained(args.tokenizer)
+
         num_added_toks = tokenizer.add_tokens(list(new_token_list))
         tokenizer.add_special_tokens({
             "eos_token":"<s>",
