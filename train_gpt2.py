@@ -12,7 +12,7 @@ import numpy as np
 from torch.utils.data import random_split
 from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
 from transformers import GPT2LMHeadModel, GPT2Config, GPTNeoForCausalLM
-
+import os
 #configuration = GPT2Config.from_pretrained('gpt2', output_hidden_states=False)
 import argparse
 """
@@ -98,6 +98,8 @@ def main():
     parser.add_argument('--train', action='store_true', default=False,
                         help='saves the current model at path')
     parser.add_argument('--eval', action='store_true', default=False,
+                        help='saves the current model at path')
+    parser.add_argument('--create-tokenizer', default=False, action='store_true',
                         help='saves the current model at path')
     args = parser.parse_args()
 
@@ -207,8 +209,27 @@ def main():
 
     train_file = "stanza_dataset/vi_vlsp21_train.brackets"
     new_token_list, train_sents = process_data(train_file)
-    # add new tokens into the tokenizer
-    #num_added_toks = tokenizer.add_tokens(list(new_token_list))
+
+    if args.create_tokenizer:
+        # add new tokens into the tokenizer
+        num_added_toks = tokenizer.add_tokens(list(new_token_list))
+        tokenizer.add_special_tokens({
+            "eos_token":"<s>",
+            "bos_token":"</s",
+            "unk_token":"<unk>",
+            "pad_token": "<pad>",
+            "mask_token":"<mask>"
+        })
+        path = "/tokenizer/tokenizer_" + args.model_name+ "/"
+
+        try:
+            os.makedirs(path)
+        except OSError:
+            print("Creation of the directory %s failed" % path)
+        else:
+            print("Successfully created the directory %s" % path)
+
+        tokenizer.save_pretrained(path)
 
     # sanity_check
     """
