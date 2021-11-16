@@ -12,7 +12,6 @@ import numpy as np
 from torch.utils.data import random_split
 from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
 from transformers import GPT2LMHeadModel, GPT2Config, GPTNeoForCausalLM
-import os
 #configuration = GPT2Config.from_pretrained('gpt2', output_hidden_states=False)
 import argparse
 """
