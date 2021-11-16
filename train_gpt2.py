@@ -235,13 +235,6 @@ def main():
         })
         path = "/tokenizer/tokenizer_" + args.model_name+ "/"
 
-        try:
-            os.makedirs(path)
-        except OSError:
-            print("Creation of the directory %s failed" % path)
-        else:
-            print("Successfully created the directory %s" % path)
-
         tokenizer.save_pretrained(path)
 
     # sanity_check
