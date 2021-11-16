@@ -79,8 +79,13 @@ def process_data(filename, tokenizer_type):
             new_token_list.update(new_tokens)
 
             if tokenizer_type!="tokenizer/tokenizer_bert":
-                new_sent = " ".join([word.replace("_"," ") for word in words if ("(_" not in word and ")_" not in word)])
-                new_sentences.append(new_sent)
+                new_sent = ""
+                for word in words:
+                    if ("(_" not in word and ")_" not in word):
+                        new_sent += word.replace("_"," ") + " "
+                    else:
+                        new_sent += word + " "
+                new_sentences.append(new_sent.strip())
     data = all_sentences if tokenizer_type == "tokenizer/tokenizer_bert" else new_sentences
 
     return new_token_list, data
@@ -268,6 +273,7 @@ def main():
     print(train_set[0])
     a, b = train_set[0]
     print(tokenizer.convert_ids_to_tokens(a))
+
     # Create default config
     # Load pretrained gpt2
     # Create device
