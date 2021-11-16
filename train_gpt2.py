@@ -170,41 +170,42 @@ def main():
         elapsed_time = format_time(time.time() - t0)
         print("elapsed time for 1 eval epoch : ", elapsed_time)
 
-    tokenizer = AutoTokenizer.from_pretrained(args.tokenizer)
+    if not args.create_tokenizer:
+        tokenizer = AutoTokenizer.from_pretrained(args.tokenizer)
 
-    val_file = "stanza_dataset/vi_vlsp21_dev.brackets"
-    _, val_sents = process_data(val_file)
-    max_len_val = max([len(tokenizer.encode(s)) for s in val_sents])
-    print(f"max_len_val {max_len_val}")
-    val_set = ParsingDataset(val_sents, tokenizer, max_length=max_len_val)
-    validation_dataloader = DataLoader(val_set, sampler=SequentialSampler(val_set), batch_size=args.batch_size)
+        val_file = "stanza_dataset/vi_vlsp21_dev.brackets"
+        _, val_sents = process_data(val_file)
+        max_len_val = max([len(tokenizer.encode(s)) for s in val_sents])
+        print(f"max_len_val {max_len_val}")
+        val_set = ParsingDataset(val_sents, tokenizer, max_length=max_len_val)
+        validation_dataloader = DataLoader(val_set, sampler=SequentialSampler(val_set), batch_size=args.batch_size)
 
-    configuration = GPT2Config(
-        bos_token_id=tokenizer.bos_token_id,
-        eos_token_id=tokenizer.eos_token_id
-    )
+        configuration = GPT2Config(
+            bos_token_id=tokenizer.bos_token_id,
+            eos_token_id=tokenizer.eos_token_id
+        )
 
-    if args.model_name=="gpt2":
-        model = GPT2LMHeadModel.from_pretrained("gpt2", config=configuration)
-    elif args.model_name=="gpt-neo-vi-small":
-        model = GPTNeoForCausalLM.from_pretrained("NlpHUST/gpt-neo-vi-small")
-    elif args.model_name=="gpt2-viwiki":
-        model = GPT2LMHeadModel.from_pretrained('danghuy1999/gpt2-viwiki')
+        if args.model_name=="gpt2":
+            model = GPT2LMHeadModel.from_pretrained("gpt2", config=configuration)
+        elif args.model_name=="gpt-neo-vi-small":
+            model = GPTNeoForCausalLM.from_pretrained("NlpHUST/gpt-neo-vi-small")
+        elif args.model_name=="gpt2-viwiki":
+            model = GPT2LMHeadModel.from_pretrained('danghuy1999/gpt2-viwiki')
 
-    # Notice: resize_token_embeddings expect to receive the full size of the new vocabulary, i.e., the length of the tokenizer.
-    # model.resize_token_embeddings(len(tokenizer))
-    model.resize_token_embeddings(len(tokenizer))
-    model = model.to(device)
+        # Notice: resize_token_embeddings expect to receive the full size of the new vocabulary, i.e., the length of the tokenizer.
+        # model.resize_token_embeddings(len(tokenizer))
+        model.resize_token_embeddings(len(tokenizer))
+        model = model.to(device)
 
-    if args.eval:
-        model.load_state_dict(torch.load(args.save_model+ "_" + args.model_name))
-        """
-        TODO:
-        """
-    if args.continue_train:
-        print("Continue training...")
-        model.load_state_dict(torch.load("saved_model/"+ args.save_model+ "_" + args.model_name + '.pt'))
-        eval_keywords(keywords)
+        if args.eval:
+            model.load_state_dict(torch.load(args.save_model+ "_" + args.model_name))
+            """
+            TODO:
+            """
+        if args.continue_train:
+            print("Continue training...")
+            model.load_state_dict(torch.load("saved_model/"+ args.save_model+ "_" + args.model_name + '.pt'))
+            eval_keywords(keywords)
 
 
     train_file = "stanza_dataset/vi_vlsp21_train.brackets"
@@ -251,9 +252,10 @@ def main():
     # Load pretrained gpt2
     # Create device
     # model.cuda()
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
 
     if args.train or args.continue_train:
+        optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+
         for epoch in range(args.epochs):
             print("Training epoch ", epoch, "...")
             train_epoch()
