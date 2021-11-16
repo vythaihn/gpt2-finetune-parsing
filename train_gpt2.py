@@ -29,13 +29,17 @@ def tokenize_seq(sent, tokenizer, max_length):
     return tokenizer(sent, truncation=True, max_length=max_length, padding="max_length")
 class ParsingDataset(Dataset):
 
-    def __init__(self, sentences, tokenizer, gpt2_type="gpt2", max_length=1000):
+    def __init__(self, sentences, tokenizer, tokenizer_type="bert", max_length=1000):
         self.tokenizer = tokenizer
         self.input_ids = []
         self.attn_masks = []
 
+
         for sentence in sentences:
-            encodings = tokenize_seq(sentence, tokenizer, max_length)
+            if tokenizer_type=="bert":
+                encodings = tokenize_seq(sentence, tokenizer, max_length)
+            else:
+                encodings = tokenize_seq("<s> " + sentence + " </s>", tokenizer, max_length)
 
             self.input_ids.append(torch.tensor(encodings['input_ids']))
             self.attn_masks.append(torch.tensor(encodings['attention_mask']))
@@ -106,7 +110,7 @@ def main():
     def eval_keywords(keywords):
         model.eval()
         for keyword in keywords:
-            input_seq = keyword
+            input_seq = keyword if args.tokenizer=="tokenizer/tokenizer_bert" else "<s> " + keyword
             generated = torch.tensor(tokenizer.encode(input_seq)).unsqueeze(0)
             generated = generated.to(device)
             sample_outputs = model.generate(
@@ -180,7 +184,8 @@ def main():
         _, val_sents = process_data(val_file)
         max_len_val = max([len(tokenizer.encode(s)) for s in val_sents])
         print(f"max_len_val {max_len_val}")
-        val_set = ParsingDataset(val_sents, tokenizer, max_length=max_len_val)
+        tok_type = "bert" if args.tokenizer == "tokenizer/tokenizer_bert" else "difff"
+        val_set = ParsingDataset(val_sents, tokenizer, tokenizer_type=tok_type, max_length=max_len_val)
         validation_dataloader = DataLoader(val_set, sampler=SequentialSampler(val_set), batch_size=args.batch_size)
 
         configuration = GPT2Config(
@@ -226,8 +231,8 @@ def main():
 
         num_added_toks = tokenizer.add_tokens(list(new_token_list))
         tokenizer.add_special_tokens({
-            "eos_token":"<s>",
-            "bos_token":"</s",
+            "eos_token":"</s>",
+            "bos_token":"<s",
             "unk_token":"<unk>",
             "pad_token": "<pad>",
             "mask_token":"<mask>"
