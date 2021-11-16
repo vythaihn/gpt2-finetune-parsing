@@ -232,9 +232,8 @@ def main():
             "pad_token": "<pad>",
             "mask_token":"<mask>"
         })
-        path = "/tokenizer_" + args.model_name+ "/"
 
-        tokenizer.save_pretrained(path)
+        tokenizer.save_pretrained("/tokenizer_" + args.model_name+ "/")
 
     # sanity_check
     """
