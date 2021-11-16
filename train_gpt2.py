@@ -82,7 +82,7 @@ def process_data(filename, tokenizer_type):
                 new_sent = " ".join([word.replace("_"," ") for word in words if ("(_" not in word and ")_" not in word)])
                 new_sentences.append(new_sent)
     data = all_sentences if tokenizer_type == "tokenizer/tokenizer_bert" else new_sentences
-    
+
     return new_token_list, data
 
 def main():
@@ -179,6 +179,8 @@ def main():
         elapsed_time = format_time(time.time() - t0)
         print("elapsed time for 1 eval epoch : ", elapsed_time)
 
+    tok_type = "bert" if args.tokenizer == "tokenizer/tokenizer_bert" else "difff"
+
     if not args.create_tokenizer:
 
         if args.model_name=="gpt-neo-vi-small":
@@ -238,7 +240,7 @@ def main():
         num_added_toks = tokenizer.add_tokens(list(new_token_list))
         tokenizer.add_special_tokens({
             "eos_token":"</s>",
-            "bos_token":"<s",
+            "bos_token":"<s>",
             "unk_token":"<unk>",
             "pad_token": "<pad>",
             "mask_token":"<mask>"
@@ -255,13 +257,17 @@ def main():
 
     max_len_train = max([len(tokenizer.encode(s)) for s in train_sents])
     print(f"max_len_train {max_len_train}")
-    train_set = ParsingDataset(train_sents, tokenizer, max_length=max_len_train)
+    train_set = ParsingDataset(train_sents, tokenizer,tokenizer_type=tok_type, max_length=max_len_train)
+
 
     print("train_size :", len(train_sents))
     print("val_size   :", len(val_sents))
     gc.collect()
 
     train_dataloader = DataLoader(train_set, sampler=RandomSampler(train_set), batch_size=args.batch_size)
+    print(train_set[0])
+    a, b = train_set[0]
+    print(tokenizer.convert_ids_to_tokens(a))
     # Create default config
     # Load pretrained gpt2
     # Create device
