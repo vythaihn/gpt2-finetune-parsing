@@ -281,8 +281,8 @@ def main():
 
     train_file_silver = args.data_silver + "vi_silver_250k.lm"
 
-    #new_token_list, train_sents_gold = process_data(train_file_gold, args.tokenizer)
-    train_sents_gold = []
+    new_token_list, train_sents_gold = process_data(train_file_gold, args.tokenizer)
+    #train_sents_gold = []
     new_token_list, train_sents_silver = process_data(train_file_silver, args.tokenizer)
 
     train_sents = train_sents_gold + train_sents_silver
