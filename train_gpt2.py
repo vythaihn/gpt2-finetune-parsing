@@ -255,7 +255,7 @@ def main():
 
     train_file_gold = args.data_gold + "vi_vlsp21_train.brackets"
 
-    train_file_silver = args.data_silver + "vi_vlsp21_train.brackets"
+    train_file_silver = args.data_silver + "vi_silver_250k.lm"
 
     new_token_list, train_sents_gold = process_data(train_file_gold, args.tokenizer)
     new_token_list, train_sents_silver = process_data(train_file_silver, args.tokenizer)
