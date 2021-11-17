@@ -42,6 +42,16 @@ class ParsingDataset(Dataset):
             print(encodings)
             print(encodings['input_ids'])
 
+            print(sentences[16756])
+            encodings = tokenize_seq("<s> " + sentences[16757] + " </s>", tokenizer, max_length)
+            print(encodings)
+            print(encodings['input_ids'])
+
+            print(sentences[16758])
+            encodings = tokenize_seq("<s> " + sentences[16757] + " </s>", tokenizer, max_length)
+            print(encodings)
+            print(encodings['input_ids'])
+
         for sentence in sentences:
             if tokenizer_type=="bert":
                 encodings = tokenize_seq(sentence, tokenizer, max_length)
