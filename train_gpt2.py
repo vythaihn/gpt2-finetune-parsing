@@ -61,11 +61,11 @@ class ParsingDataset(Dataset):
                 encodings = tokenize_seq("<s> " + sentence + " </s>", tokenizer, max_length)
             print(count)
             count+=1
-            input_id = self.list_replace(encodings['input_ids'], None, tokenizer.unk_token_id)
+            input_id = self.list_replace(self, encodings['input_ids'], None, tokenizer.unk_token_id)
             self.input_ids.append(torch.tensor(input_id))
             self.attn_masks.append(torch.tensor(encodings['attention_mask']))
 
-    def list_replace(lst, old=None, new=0):
+    def list_replace(self,lst, old=None, new=0):
         """replace list elements (inplace)"""
         i = -1
         try:
