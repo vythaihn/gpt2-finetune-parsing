@@ -122,6 +122,7 @@ def main():
 
     if args.train:
         log_file = open("saved_model/" + "logging_" + args.save_model + "_" + args.model_name + '.pt', 'w')
+        log_file.write("hello world!")
     else:
         log_file = open("saved_model/" + "logging_continued_" + args.save_model + "_" + args.model_name + '.pt', 'w')
 
