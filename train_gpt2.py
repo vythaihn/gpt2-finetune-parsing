@@ -331,7 +331,6 @@ def main():
 
     train_dataloader = DataLoader(train_set, sampler=RandomSampler(train_set), batch_size=args.batch_size)
     print(train_set[0])
-    log_file.write(train_set[0] + "\n")
 
     a, b = train_set[0]
     print(tokenizer.convert_ids_to_tokens(a))
