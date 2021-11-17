@@ -45,7 +45,7 @@ class ParsingDataset(Dataset):
             else:
                 encodings = tokenize_seq("<s> " + sentence + " </s>", tokenizer, max_length)
 
-            #print(count)
+            print(count)
             count += 1
             self.input_ids.append(torch.tensor(encodings['input_ids']))
             self.attn_masks.append(torch.tensor(encodings['attention_mask']))
