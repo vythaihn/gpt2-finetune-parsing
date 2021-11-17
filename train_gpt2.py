@@ -38,6 +38,9 @@ class ParsingDataset(Dataset):
 
         if max_length==750:
             print(sentences[16757])
+            encodings = tokenize_seq("<s> " + sentences[16757] + " </s>", tokenizer, max_length)
+            print(encodings)
+            print(encodings['input_ids'])
 
         for sentence in sentences:
             if tokenizer_type=="bert":
@@ -45,7 +48,7 @@ class ParsingDataset(Dataset):
             else:
                 encodings = tokenize_seq("<s> " + sentence + " </s>", tokenizer, max_length)
 
-            print(count)
+            #print(count)
             count += 1
             self.input_ids.append(torch.tensor(encodings['input_ids']))
             self.attn_masks.append(torch.tensor(encodings['attention_mask']))
