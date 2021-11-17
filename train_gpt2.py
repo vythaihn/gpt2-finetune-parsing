@@ -36,11 +36,14 @@ class ParsingDataset(Dataset):
 
 
         for sentence in sentences:
+            count = 0
             if tokenizer_type=="bert":
                 encodings = tokenize_seq(sentence, tokenizer, max_length)
             else:
                 encodings = tokenize_seq("<s> " + sentence + " </s>", tokenizer, max_length)
 
+            print(count)
+            count += 1
             self.input_ids.append(torch.tensor(encodings['input_ids']))
             self.attn_masks.append(torch.tensor(encodings['attention_mask']))
 
@@ -328,7 +331,7 @@ def main():
 
     print("val_size   :", len(val_sents))
     log_file.write("train_size :" + str(len(val_sents))+ "\n")
-    
+
     train_set = ParsingDataset(train_sents, tokenizer, tokenizer_type=tok_type, max_length=max_len_train)
 
 
