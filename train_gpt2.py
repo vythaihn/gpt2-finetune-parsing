@@ -74,7 +74,7 @@ def process_data(filename, tokenizer_type):
         new_sentences = []
         for each_sent in all_sentences:
             if each_sent != "":
-                words = each_sent.split()[:500]
+                words = each_sent.split()
                 new_tokens = {word for word in words if ("(_" in word or ")_" in word)}
                 # print(new_tokens)
                 new_token_list.update(new_tokens)
@@ -317,18 +317,18 @@ def main():
     """
 
     #max_len_train = max([len(tokenizer.encode(s)) for s in train_sents])
-    max_len_train = 500 if tok_type=="bert" else 750
+    max_len_train = 600 if tok_type=="bert" else 750
 
     print(f"max_len_train {max_len_train}")
-    log_file.write(f"max_len_val {max_len_val} \n")
+    log_file.write(f"max_len_val {max_len_train} \n")
 
-    train_set = ParsingDataset(train_sents, tokenizer,tokenizer_type=tok_type, max_length=max_len_train)
+    train_set = ParsingDataset(train_sents, tokenizer, tokenizer_type=tok_type, max_length=max_len_train)
 
     print("train_size :", len(train_sents))
     log_file.write("train_size :" + str(len(train_sents))+ "\n")
 
     print("val_size   :", len(val_sents))
-    log_file.write("train_size :" + str(len(train_sents))+ "\n")
+    log_file.write("train_size :" + str(len(val_sents))+ "\n")
 
     gc.collect()
 
