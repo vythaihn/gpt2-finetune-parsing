@@ -36,7 +36,8 @@ class ParsingDataset(Dataset):
 
         count = 0
 
-        print(sentences[16757])
+        if max_length==750:
+            print(sentences[16757])
 
         for sentence in sentences:
             if tokenizer_type=="bert":
