@@ -180,7 +180,7 @@ def main():
                 elapsed_time = format_time(time.time() - t0)
                 print("elapsed time for 10k step : ", elapsed_time)
                 log_file.write("elapsed time for 10k step : " + str(elapsed_time) + "\n")
-
+                log_file.flush()
                 t0 = time.time()
                 total_train_loss = 0
 
@@ -190,6 +190,8 @@ def main():
             if step%500==0:
                 print("Currently at step ", step, "/", len(train_dataloader))
                 log_file.write("Currently at step " + str(step) + "/" + str(len(train_dataloader))+ "\n")
+                log_file.flush()
+
 
         """
         avg_train_loss = total_train_loss / len(train_dataloader)
