@@ -73,19 +73,20 @@ def process_data(filename, tokenizer_type):
         all_sentences = [line.strip() for line in lines]
         new_sentences = []
         for each_sent in all_sentences:
-            words = each_sent.split()[:500]
-            new_tokens = {word for word in words if ("(_" in word or ")_" in word)}
-            # print(new_tokens)
-            new_token_list.update(new_tokens)
+            if each_sent != "":
+                words = each_sent.split()[:500]
+                new_tokens = {word for word in words if ("(_" in word or ")_" in word)}
+                # print(new_tokens)
+                new_token_list.update(new_tokens)
 
-            if tokenizer_type!="tokenizer/tokenizer_bert":
-                new_sent = ""
-                for word in words:
-                    if ("(_" not in word and ")_" not in word):
-                        new_sent += word.replace("_"," ") + " "
-                    else:
-                        new_sent += word + " "
-                new_sentences.append(new_sent.strip())
+                if tokenizer_type!="tokenizer/tokenizer_bert":
+                    new_sent = ""
+                    for word in words:
+                        if ("(_" not in word and ")_" not in word):
+                            new_sent += word.replace("_"," ") + " "
+                        else:
+                            new_sent += word + " "
+                    new_sentences.append(new_sent.strip())
     data = all_sentences if tokenizer_type == "tokenizer/tokenizer_bert" else new_sentences
 
     return new_token_list, data
