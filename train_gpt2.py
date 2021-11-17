@@ -126,8 +126,7 @@ def main():
     else:
         log_file = open("saved_model/" + "logging_continued_" + args.save_model + "_" + args.model_name + '.pt', 'w')
 
-
-
+    log_file.flush()
     def eval_keywords(keywords):
         model.eval()
         for keyword in keywords:
