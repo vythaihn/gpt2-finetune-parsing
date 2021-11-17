@@ -73,7 +73,7 @@ def process_data(filename, tokenizer_type):
         all_sentences = [line.strip() for line in lines]
         new_sentences = []
         for each_sent in all_sentences:
-            words = each_sent.split()
+            words = each_sent.split()[:500]
             new_tokens = {word for word in words if ("(_" in word or ")_" in word)}
             # print(new_tokens)
             new_token_list.update(new_tokens)
@@ -172,6 +172,26 @@ def main():
             loss.backward()
             optimizer.step()
 
+            if step%10000==9999:
+                avg_train_loss = total_train_loss / 10000
+                print("avg_train_loss", avg_train_loss)
+                log_file.write("avg_train_loss", avg_train_loss)
+
+                elapsed_time = format_time(time.time() - t0)
+                print("elapsed time for 10k step : ", elapsed_time)
+                log_file.write("elapsed time for 10k step : ", elapsed_time)
+
+                t0 = time.time()
+                total_train_loss = 0
+
+                eval_epoch()
+                eval_keywords(keywords)
+                model.train()
+            if step%500==0:
+                print("Currently at step ", step, "/", len(train_dataloader))
+                log_file("Currently at step ", step, "/", len(train_dataloader))
+
+        """
         avg_train_loss = total_train_loss / len(train_dataloader)
         print("avg_train_loss", avg_train_loss)
         log_file.write("avg_train_loss", avg_train_loss)
@@ -179,7 +199,7 @@ def main():
         elapsed_time = format_time(time.time() - t0)
         print("elapsed time for 1 training epoch : ", elapsed_time)
         log_file.write("elapsed time for 1 training epoch : ", elapsed_time)
-
+        """
 
     # do one epoch for eval
     def eval_epoch():
@@ -216,7 +236,9 @@ def main():
 
 
         _, val_sents = process_data(val_file, args.tokenizer)
+
         max_len_val = max([len(tokenizer.encode(s)) for s in val_sents])
+
         print(f"max_len_val {max_len_val}")
         log_file.write(f"max_len_val {max_len_val}")
 
@@ -290,7 +312,9 @@ def main():
     print(tokenizer.convert_ids_to_tokens(tokens))
     """
 
-    max_len_train = max([len(tokenizer.encode(s)) for s in train_sents])
+    #max_len_train = max([len(tokenizer.encode(s)) for s in train_sents])
+    max_len_train = 500 if tok_type=="bert" else 750
+
     print(f"max_len_train {max_len_train}")
     log_file.write(f"max_len_val {max_len_val}")
 
@@ -323,7 +347,6 @@ def main():
         for epoch in range(args.epochs):
             print("Training epoch ", epoch, "...")
             log_file.write("Training epoch ", epoch, "...")
-
             train_epoch()
             eval_epoch()
             eval_keywords(keywords)
