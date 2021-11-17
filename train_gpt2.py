@@ -36,6 +36,7 @@ class ParsingDataset(Dataset):
 
         count = 0
 
+        print("Unk token id ", tokenizer.unk_token_id)
         """
         if max_length==750:
             print(sentences[16757])
@@ -51,7 +52,7 @@ class ParsingDataset(Dataset):
                 encodings = tokenize_seq(sentence, tokenizer, max_length)
             else:
                 encodings = tokenize_seq("<s> " + sentence + " </s>", tokenizer, max_length)
-            print(count)
+            #print(count)
             count+=1
             input_id = [tokenizer.unk_token_id if v is None else v for v in encodings['input_ids']]
             self.input_ids.append(torch.tensor(input_id))
