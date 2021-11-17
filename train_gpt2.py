@@ -52,11 +52,12 @@ class ParsingDataset(Dataset):
                 encodings = tokenize_seq(sentence, tokenizer, max_length)
             else:
                 encodings = tokenize_seq("<s> " + sentence + " </s>", tokenizer, max_length)
-            #print(count)
+            print(count)
             count+=1
-            input_id = [tokenizer.unk_token_id if v is None else v for v in encodings['input_ids']]
-            self.input_ids.append(torch.tensor(input_id))
-            self.attn_masks.append(torch.tensor(encodings['attention_mask']))
+            input_id = [0 for v in encodings['input_ids'] if v is None]
+            if len(input_id) == 0:
+                self.input_ids.append(torch.tensor(input_id))
+                self.attn_masks.append(torch.tensor(encodings['attention_mask']))
 
     def __len__(self):
         return len(self.input_ids)
@@ -247,9 +248,7 @@ def main():
 
         if args.model_name=="gpt-neo-vi-small":
             tokenizer = GPT2Tokenizer.from_pretrained(args.tokenizer)
-            tokenizer.add_special_tokens({
-                "unk_token": "<unk>"
-            })
+
         else:
             tokenizer = AutoTokenizer.from_pretrained(args.tokenizer)
 
