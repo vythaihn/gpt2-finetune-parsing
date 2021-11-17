@@ -52,10 +52,10 @@ class ParsingDataset(Dataset):
                 encodings = tokenize_seq(sentence, tokenizer, max_length)
             else:
                 encodings = tokenize_seq("<s> " + sentence + " </s>", tokenizer, max_length)
-            print(count)
-            count+=1
+            #print(count)
+            #count+=1
             input_id = [0 for v in encodings['input_ids'] if v is None]
-            if len(input_id) == 0:
+            if encodings['input_ids'][max_length-1] in (tokenizer.pad_token_id, tokenizer.eos_token_id) and input_id==[]:
                 self.input_ids.append(torch.tensor(input_id))
                 self.attn_masks.append(torch.tensor(encodings['attention_mask']))
 
@@ -334,24 +334,26 @@ def main():
     """
 
     #max_len_train = max([len(tokenizer.encode(s)) for s in train_sents])
-    max_len_train = 600 if tok_type=="bert" else 750
+    max_len_train = 600 if tok_type=="bert" else 512
 
     print(f"max_len_train {max_len_train}")
     log_file.write(f"max_len_val {max_len_train} \n")
 
     print("train_size :", len(train_sents))
-    log_file.write("train_size :" + str(len(train_sents))+ "\n")
+    log_file.write("train_size before cleaning :" + str(len(train_sents))+ "\n")
 
     print("val_size   :", len(val_sents))
-    log_file.write("train_size :" + str(len(val_sents))+ "\n")
+    log_file.write("val_size :" + str(len(val_sents))+ "\n")
 
     train_set = ParsingDataset(train_sents, tokenizer, tokenizer_type=tok_type, max_length=max_len_train)
-
-
 
     gc.collect()
 
     train_dataloader = DataLoader(train_set, sampler=RandomSampler(train_set), batch_size=args.batch_size)
+
+    print("train_size after cleaning :", len(train_dataloader)*args.batch_size)
+    log_file.write("train_size after cleaning :" + str(len(train_dataloader)*args.batch_size)+ "\n")
+
     print(train_set[0])
 
     a, b = train_set[0]
