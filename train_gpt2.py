@@ -175,11 +175,11 @@ def main():
             if step%10000==9999:
                 avg_train_loss = total_train_loss / 10000
                 print("avg_train_loss", avg_train_loss)
-                log_file.write("avg_train_loss", avg_train_loss)
+                log_file.write("avg_train_loss", avg_train_loss, "\n")
 
                 elapsed_time = format_time(time.time() - t0)
                 print("elapsed time for 10k step : ", elapsed_time)
-                log_file.write("elapsed time for 10k step : ", elapsed_time)
+                log_file.write("elapsed time for 10k step : ", elapsed_time, "\n")
 
                 t0 = time.time()
                 total_train_loss = 0
@@ -189,7 +189,7 @@ def main():
                 model.train()
             if step%500==0:
                 print("Currently at step ", step, "/", len(train_dataloader))
-                log_file("Currently at step ", step, "/", len(train_dataloader))
+                log_file("Currently at step ", step, "/", len(train_dataloader), "\n")
 
         """
         avg_train_loss = total_train_loss / len(train_dataloader)
@@ -216,11 +216,11 @@ def main():
 
         avg_val_loss = total_eval_loss / len(validation_dataloader)
         print("avg_val_loss", avg_val_loss)
-        log_file.write("avg_val_loss", avg_val_loss)
+        log_file.write("avg_val_loss", avg_val_loss, "\n")
 
         elapsed_time = format_time(time.time() - t0)
         print("elapsed time for 1 eval epoch : ", elapsed_time)
-        log_file.write("elapsed time for 1 eval epoch : ", elapsed_time)
+        log_file.write("elapsed time for 1 eval epoch : ", elapsed_time, "\n")
 
 
     tok_type = "bert" if args.tokenizer == "tokenizer/tokenizer_bert" else "difff"
@@ -240,7 +240,7 @@ def main():
         max_len_val = max([len(tokenizer.encode(s)) for s in val_sents])
 
         print(f"max_len_val {max_len_val}")
-        log_file.write(f"max_len_val {max_len_val}")
+        log_file.write(f"max_len_val {max_len_val} \n")
 
         tok_type = "bert" if args.tokenizer == "tokenizer/tokenizer_bert" else "difff"
         val_set = ParsingDataset(val_sents, tokenizer, tokenizer_type=tok_type, max_length=max_len_val)
@@ -270,7 +270,7 @@ def main():
             """
         if args.continue_train:
             print("Continue training...")
-            log_file.write(f"max_len_val {max_len_val}")
+            log_file.write(f"max_len_val {max_len_val} \n")
 
             model.load_state_dict(torch.load("saved_model/"+ args.save_model+ "_" + args.model_name + '.pt'))
             eval_keywords(keywords)
@@ -317,25 +317,25 @@ def main():
     max_len_train = 500 if tok_type=="bert" else 750
 
     print(f"max_len_train {max_len_train}")
-    log_file.write(f"max_len_val {max_len_val}")
+    log_file.write(f"max_len_val {max_len_val} \n")
 
     train_set = ParsingDataset(train_sents, tokenizer,tokenizer_type=tok_type, max_length=max_len_train)
 
     print("train_size :", len(train_sents))
-    log_file.write("train_size :", len(train_sents))
+    log_file.write("train_size :", len(train_sents), "\n")
 
     print("val_size   :", len(val_sents))
-    log_file.write("train_size :", len(train_sents))
+    log_file.write("train_size :", len(train_sents), "\n")
 
     gc.collect()
 
     train_dataloader = DataLoader(train_set, sampler=RandomSampler(train_set), batch_size=args.batch_size)
     print(train_set[0])
-    log_file.write(train_set[0])
+    log_file.write(train_set[0], "\n")
 
     a, b = train_set[0]
     print(tokenizer.convert_ids_to_tokens(a))
-    log_file.write(tokenizer.convert_ids_to_tokens(a))
+    log_file.write(tokenizer.convert_ids_to_tokens(a), "\n")
 
     # Create default config
     # Load pretrained gpt2
@@ -347,7 +347,7 @@ def main():
 
         for epoch in range(args.epochs):
             print("Training epoch ", epoch, "...")
-            log_file.write("Training epoch ", epoch, "...")
+            log_file.write("Training epoch ", epoch, "...", "\n")
             train_epoch()
             eval_epoch()
             eval_keywords(keywords)
