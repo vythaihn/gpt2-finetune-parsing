@@ -247,6 +247,9 @@ def main():
 
         if args.model_name=="gpt-neo-vi-small":
             tokenizer = GPT2Tokenizer.from_pretrained(args.tokenizer)
+            tokenizer.add_special_tokens({
+                "unk_token": "<unk>"
+            }
         else:
             tokenizer = AutoTokenizer.from_pretrained(args.tokenizer)
 
