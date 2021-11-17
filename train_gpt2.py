@@ -94,7 +94,10 @@ def main():
     parser = argparse.ArgumentParser(description='CIFAR-10 dataset')
     parser.add_argument('--batch-size', type=int, default=4,
                         help='input batch size for training')
-    parser.add_argument('--data-dir', default='data',
+    parser.add_argument('--data-gold', default='stanza_dataset/gold/',
+                        help='directory that contains cifar-10-batches-py/ '
+                             '(downloaded automatically if necessary)')
+    parser.add_argument('--data-silver', default='stanza_dataset/silver/',
                         help='directory that contains cifar-10-batches-py/ '
                              '(downloaded automatically if necessary)')
     parser.add_argument('--epochs', type=int, metavar='N',
@@ -117,6 +120,12 @@ def main():
                         help='saves the current model at path')
     args = parser.parse_args()
 
+    if args.train:
+        log_file = open("saved_model/" + "logging_" + args.save_model + "_" + args.model_name + '.pt', 'w')
+    else:
+        log_file = open("saved_model/" + "logging_continued_" + args.save_model + "_" + args.model_name + '.pt', 'w')
+
+
 
     def eval_keywords(keywords):
         model.eval()
@@ -134,6 +143,8 @@ def main():
             )
             for i, sample_output in enumerate(sample_outputs):
                 print("{}: {}".format(i, tokenizer.decode(sample_output, skip_special_tokens=True)))
+                log_file.write("{}: {} \n".format(i, tokenizer.decode(sample_output, skip_special_tokens=True)))
+
 
     keywords = ["(_ROOT (_S (_NP", "(_ROOT (_S (_S", "(_ROOT (_S (_VP", "(_ROOT", "(_ROOT"]
 
@@ -163,8 +174,12 @@ def main():
 
         avg_train_loss = total_train_loss / len(train_dataloader)
         print("avg_train_loss", avg_train_loss)
+        log_file.write("avg_train_loss", avg_train_loss)
+
         elapsed_time = format_time(time.time() - t0)
         print("elapsed time for 1 training epoch : ", elapsed_time)
+        log_file.write("elapsed time for 1 training epoch : ", elapsed_time)
+
 
     # do one epoch for eval
     def eval_epoch():
@@ -181,8 +196,12 @@ def main():
 
         avg_val_loss = total_eval_loss / len(validation_dataloader)
         print("avg_val_loss", avg_val_loss)
+        log_file.write("avg_val_loss", avg_val_loss)
+
         elapsed_time = format_time(time.time() - t0)
         print("elapsed time for 1 eval epoch : ", elapsed_time)
+        log_file.write("elapsed time for 1 eval epoch : ", elapsed_time)
+
 
     tok_type = "bert" if args.tokenizer == "tokenizer/tokenizer_bert" else "difff"
 
@@ -193,10 +212,14 @@ def main():
         else:
             tokenizer = AutoTokenizer.from_pretrained(args.tokenizer)
 
-        val_file = "stanza_dataset/vi_vlsp21_dev.brackets"
+        val_file = args.data_gold + "vi_vlsp21_dev.brackets"
+
+
         _, val_sents = process_data(val_file, args.tokenizer)
         max_len_val = max([len(tokenizer.encode(s)) for s in val_sents])
         print(f"max_len_val {max_len_val}")
+        log_file.write(f"max_len_val {max_len_val}")
+
         tok_type = "bert" if args.tokenizer == "tokenizer/tokenizer_bert" else "difff"
         val_set = ParsingDataset(val_sents, tokenizer, tokenizer_type=tok_type, max_length=max_len_val)
         validation_dataloader = DataLoader(val_set, sampler=SequentialSampler(val_set), batch_size=args.batch_size)
@@ -225,12 +248,19 @@ def main():
             """
         if args.continue_train:
             print("Continue training...")
+            log_file.write(f"max_len_val {max_len_val}")
+
             model.load_state_dict(torch.load("saved_model/"+ args.save_model+ "_" + args.model_name + '.pt'))
             eval_keywords(keywords)
 
+    train_file_gold = args.data_gold + "vi_vlsp21_train.brackets"
 
-    train_file = "stanza_dataset/vi_vlsp21_train.brackets"
-    new_token_list, train_sents = process_data(train_file, args.tokenizer)
+    train_file_silver = args.data_silver + "vi_vlsp21_train.brackets"
+
+    new_token_list, train_sents_gold = process_data(train_file_gold, args.tokenizer)
+    new_token_list, train_sents_silver = process_data(train_file_silver, args.tokenizer)
+
+    train_sents = train_sents_gold + train_sents_silver
 
     if args.create_tokenizer:
         # add new tokens into the tokenizer
@@ -262,17 +292,25 @@ def main():
 
     max_len_train = max([len(tokenizer.encode(s)) for s in train_sents])
     print(f"max_len_train {max_len_train}")
+    log_file.write(f"max_len_val {max_len_val}")
+
     train_set = ParsingDataset(train_sents, tokenizer,tokenizer_type=tok_type, max_length=max_len_train)
 
-
     print("train_size :", len(train_sents))
+    log_file.write("train_size :", len(train_sents))
+
     print("val_size   :", len(val_sents))
+    log_file.write("train_size :", len(train_sents))
+
     gc.collect()
 
     train_dataloader = DataLoader(train_set, sampler=RandomSampler(train_set), batch_size=args.batch_size)
     print(train_set[0])
+    log_file.write(train_set[0])
+
     a, b = train_set[0]
     print(tokenizer.convert_ids_to_tokens(a))
+    log_file.write(tokenizer.convert_ids_to_tokens(a))
 
     # Create default config
     # Load pretrained gpt2
@@ -284,6 +322,8 @@ def main():
 
         for epoch in range(args.epochs):
             print("Training epoch ", epoch, "...")
+            log_file.write("Training epoch ", epoch, "...")
+
             train_epoch()
             eval_epoch()
             eval_keywords(keywords)
