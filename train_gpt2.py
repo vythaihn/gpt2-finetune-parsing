@@ -189,7 +189,7 @@ def main():
                 model.train()
             if step%500==0:
                 print("Currently at step ", step, "/", len(train_dataloader))
-                log_file("Currently at step " + str(step) + "/" + str(len(train_dataloader))+ "\n")
+                log_file.write("Currently at step " + str(step) + "/" + str(len(train_dataloader))+ "\n")
 
         """
         avg_train_loss = total_train_loss / len(train_dataloader)
