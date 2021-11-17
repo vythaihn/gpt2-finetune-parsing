@@ -188,6 +188,7 @@ def main():
                 eval_epoch()
                 eval_keywords(keywords)
                 model.train()
+
             if step%500==0:
                 print("Currently at step ", step, "/", len(train_dataloader))
                 log_file.write("Currently at step " + str(step) + "/" + str(len(train_dataloader))+ "\n")
@@ -322,13 +323,15 @@ def main():
     print(f"max_len_train {max_len_train}")
     log_file.write(f"max_len_val {max_len_train} \n")
 
-    train_set = ParsingDataset(train_sents, tokenizer, tokenizer_type=tok_type, max_length=max_len_train)
-
     print("train_size :", len(train_sents))
     log_file.write("train_size :" + str(len(train_sents))+ "\n")
 
     print("val_size   :", len(val_sents))
     log_file.write("train_size :" + str(len(val_sents))+ "\n")
+    
+    train_set = ParsingDataset(train_sents, tokenizer, tokenizer_type=tok_type, max_length=max_len_train)
+
+
 
     gc.collect()
 
