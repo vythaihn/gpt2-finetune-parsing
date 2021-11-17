@@ -36,7 +36,7 @@ class ParsingDataset(Dataset):
 
         count = 0
 
-
+        """
         if max_length==750:
             print(sentences[16757])
             encodings = tokenize_seq("<s> " + sentences[16757] + " </s>", tokenizer, max_length)
@@ -44,7 +44,7 @@ class ParsingDataset(Dataset):
             #print(encodings['input_ids'])
             input_id = self.list_replace(encodings['input_ids'], None, tokenizer.unk_token_id)
             print(input_id)
-
+        """
 
         for sentence in sentences:
             if tokenizer_type=="bert":
@@ -53,20 +53,9 @@ class ParsingDataset(Dataset):
                 encodings = tokenize_seq("<s> " + sentence + " </s>", tokenizer, max_length)
             print(count)
             count+=1
-            input_id = self.list_replace(encodings['input_ids'], None, tokenizer.unk_token_id)
+            input_id = [tokenizer.unk_token_id if v is None else v for v in encodings['input_ids']]
             self.input_ids.append(torch.tensor(input_id))
             self.attn_masks.append(torch.tensor(encodings['attention_mask']))
-
-    def list_replace(self,lst, old=None, new=0):
-        """replace list elements (inplace)"""
-        i = -1
-        try:
-            while 1:
-                i = lst.index(old, i + 1)
-                lst[i] = new
-        except ValueError:
-            pass
-        return lst
 
     def __len__(self):
         return len(self.input_ids)
