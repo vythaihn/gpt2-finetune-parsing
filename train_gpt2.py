@@ -34,9 +34,9 @@ class ParsingDataset(Dataset):
         self.input_ids = []
         self.attn_masks = []
 
+        count = 0
 
         for sentence in sentences:
-            count = 0
             if tokenizer_type=="bert":
                 encodings = tokenize_seq(sentence, tokenizer, max_length)
             else:
