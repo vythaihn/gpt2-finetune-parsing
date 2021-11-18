@@ -172,6 +172,7 @@ def main():
         t0 = time.time()
         total_train_loss = 0
         model.train()
+
         for step, batch in enumerate(train_dataloader):
             model.zero_grad()
             outputs = process_one_batch(batch)
@@ -182,8 +183,8 @@ def main():
             loss.backward()
             optimizer.step()
 
-            if step%10000==9999:
-                avg_train_loss = total_train_loss / 10000
+            if step%2000==1999:
+                avg_train_loss = total_train_loss / 2000
                 print("avg_train_loss", avg_train_loss)
                 log_file.write("avg_train_loss" + str(avg_train_loss) + "\n")
 
@@ -201,8 +202,7 @@ def main():
                 if args.train:
                     torch.save(model.state_dict(), "saved_model/" + args.save_model + "_" + args.model_name + '.pt')
                 else:
-                    torch.save(model.state_dict(),
-                               "saved_model/" + "continued_" + args.save_model + "_" + args.model_name + '.pt')
+                    torch.save(model.state_dict(), "saved_model/" + "continued_" + args.save_model + "_" + args.model_name + '.pt')
                 print("Saved model!")
                 log_file.write("Saved model!")
 
