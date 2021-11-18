@@ -342,7 +342,7 @@ def main():
     """
 
     #max_len_train = max([len(tokenizer.encode(s)) for s in train_sents])
-    max_len_train = 600 if tok_type=="bert" else 512
+    max_len_train = 512 if tok_type=="bert" else 512
 
     print(f"max_len_train {max_len_train}")
     log_file.write(f"max_len_val {max_len_train} \n")
