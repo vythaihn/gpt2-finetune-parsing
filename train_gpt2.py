@@ -34,19 +34,6 @@ class ParsingDataset(Dataset):
         self.input_ids = []
         self.attn_masks = []
 
-        count = 0
-
-        print("Unk token id ", tokenizer.unk_token_id)
-        """
-        if max_length==750:
-            print(sentences[16757])
-            encodings = tokenize_seq("<s> " + sentences[16757] + " </s>", tokenizer, max_length)
-            #print(encodings)
-            #print(encodings['input_ids'])
-            input_id = self.list_replace(encodings['input_ids'], None, tokenizer.unk_token_id)
-            print(input_id)
-        """
-
         for sentence in sentences:
             if tokenizer_type=="bert":
                 encodings = tokenize_seq(sentence, tokenizer, max_length)
@@ -56,7 +43,7 @@ class ParsingDataset(Dataset):
             #count+=1
             input_id = [0 for v in encodings['input_ids'] if v is None]
             if encodings['input_ids'][max_length-1] in (tokenizer.pad_token_id, tokenizer.eos_token_id) and input_id==[]:
-                self.input_ids.append(torch.tensor(input_id))
+                self.input_ids.append(torch.tensor(encodings['input_ids']))
                 self.attn_masks.append(torch.tensor(encodings['attention_mask']))
 
     def __len__(self):
@@ -260,19 +247,7 @@ def main():
         else:
             tokenizer = AutoTokenizer.from_pretrained(args.tokenizer)
 
-        val_file = args.data_gold + "vi_vlsp21_dev.brackets"
 
-
-        _, val_sents = process_data(val_file, args.tokenizer)
-
-        max_len_val = max([len(tokenizer.encode(s)) for s in val_sents])
-
-        print(f"max_len_val {max_len_val}")
-        log_file.write(f"max_len_val {max_len_val} \n")
-
-        tok_type = "bert" if args.tokenizer == "tokenizer/tokenizer_bert" else "difff"
-        val_set = ParsingDataset(val_sents, tokenizer, tokenizer_type=tok_type, max_length=max_len_val)
-        validation_dataloader = DataLoader(val_set, sampler=SequentialSampler(val_set), batch_size=args.batch_size)
 
         configuration = GPT2Config(
             bos_token_id=tokenizer.bos_token_id,
@@ -291,6 +266,27 @@ def main():
         model.resize_token_embeddings(len(tokenizer))
         model = model.to(device)
 
+        val_file = args.data_gold + "vi_vlsp21_dev.brackets"
+        train_file_gold = args.data_gold + "vi_vlsp21_train.brackets"
+        train_file_silver = args.data_silver + "vi_silver_250k.lm"
+
+        _, val_sents = process_data(val_file, args.tokenizer)
+        new_token_list, train_sents_gold = process_data(train_file_gold, args.tokenizer)
+        new_token_list, train_sents_silver = process_data(train_file_silver, args.tokenizer)
+        #max_len_val = max([len(tokenizer.encode(s)) for s in val_sents])
+        val_sents += train_sents_silver[:5000]
+        train_sents_silver = train_sents_silver[5000:]
+        max_len_val = 512
+
+        train_sents = train_sents_gold + train_sents_silver
+
+        print(f"max_len_val {max_len_val}")
+        log_file.write(f"max_len_val {max_len_val} \n")
+
+        tok_type = "bert" if args.tokenizer == "tokenizer/tokenizer_bert" else "difff"
+        val_set = ParsingDataset(val_sents, tokenizer, tokenizer_type=tok_type, max_length=max_len_val)
+        validation_dataloader = DataLoader(val_set, sampler=SequentialSampler(val_set), batch_size=args.batch_size)
+
         if args.eval:
             model.load_state_dict(torch.load(args.save_model+ "_" + args.model_name))
             """
@@ -303,15 +299,6 @@ def main():
             model.load_state_dict(torch.load("saved_model/"+ args.save_model+ "_" + args.model_name + '.pt'))
             eval_keywords(keywords)
 
-    train_file_gold = args.data_gold + "vi_vlsp21_train.brackets"
-
-    train_file_silver = args.data_silver + "vi_silver_250k.lm"
-
-    new_token_list, train_sents_gold = process_data(train_file_gold, args.tokenizer)
-    #train_sents_gold = []
-    new_token_list, train_sents_silver = process_data(train_file_silver, args.tokenizer)
-
-    train_sents = train_sents_gold + train_sents_silver
 
     if args.create_tokenizer:
         # add new tokens into the tokenizer
