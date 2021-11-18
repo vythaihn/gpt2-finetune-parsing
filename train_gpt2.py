@@ -68,28 +68,33 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 #train epoch for now
 
-def process_data(filename, tokenizer_type):
+def process_data(args, filename):
     new_token_list = set()
     with open(filename) as file:
         lines = file.readlines()
         all_sentences = [line.strip() for line in lines]
         new_sentences = []
+        new_sentences_bert = []
+
         for each_sent in all_sentences:
             if each_sent != "":
                 words = each_sent.split()
-                new_tokens = {word for word in words if ("(_" in word or ")_" in word)}
-                # print(new_tokens)
-                new_token_list.update(new_tokens)
+                if len(words) < args.max_length:
+                    new_tokens = {word for word in words if ("(_" in word or ")_" in word)}
+                    # print(new_tokens)
+                    new_token_list.update(new_tokens)
+                    if args.tokenizer =="tokenizer/tokenizer_bert":
+                        new_sentences_bert.append(each_sent)
+                    else:
+                        new_sent = ""
+                        for word in words:
+                            if ("(_" not in word and ")_" not in word):
+                                new_sent += word.replace("_"," ") + " "
+                            else:
+                                new_sent += word + " "
+                        new_sentences.append(new_sent.strip())
 
-                if tokenizer_type!="tokenizer/tokenizer_bert":
-                    new_sent = ""
-                    for word in words:
-                        if ("(_" not in word and ")_" not in word):
-                            new_sent += word.replace("_"," ") + " "
-                        else:
-                            new_sent += word + " "
-                    new_sentences.append(new_sent.strip())
-    data = all_sentences if tokenizer_type == "tokenizer/tokenizer_bert" else new_sentences
+    data = new_sentences_bert if args.tokenizer == "tokenizer/tokenizer_bert" else new_sentences
 
     return new_token_list, data
 
@@ -120,6 +125,8 @@ def main():
     parser.add_argument('--eval', action='store_true', default=False,
                         help='saves the current model at path')
     parser.add_argument('--create-tokenizer', default=False, action='store_true',
+                        help='saves the current model at path')
+    parser.add_argument('--max-length', default=512, type=int,
                         help='saves the current model at path')
     args = parser.parse_args()
 
@@ -270,13 +277,14 @@ def main():
         train_file_gold = args.data_gold + "vi_vlsp21_train.brackets"
         train_file_silver = args.data_silver + "vi_silver_250k.lm"
 
-        _, val_sents = process_data(val_file, args.tokenizer)
-        new_token_list, train_sents_gold = process_data(train_file_gold, args.tokenizer)
-        new_token_list, train_sents_silver = process_data(train_file_silver, args.tokenizer)
+        _, val_sents = process_data(args, val_file)
+        new_token_list, train_sents_gold = process_data(args, train_file_gold)
+        new_token_list, train_sents_silver = process_data(args, train_file_silver)
         #max_len_val = max([len(tokenizer.encode(s)) for s in val_sents])
         val_sents += train_sents_silver[:5000]
         train_sents_silver = train_sents_silver[5000:]
-        max_len_val = 512
+
+        max_len_val = args.max_length
 
         train_sents = train_sents_gold + train_sents_silver
 
@@ -329,7 +337,7 @@ def main():
     """
 
     #max_len_train = max([len(tokenizer.encode(s)) for s in train_sents])
-    max_len_train = 512 if tok_type=="bert" else 512
+    max_len_train = args.max_length if tok_type=="bert" else args.max_length
 
     print(f"max_len_train {max_len_train}")
     log_file.write(f"max_len_val {max_len_train} \n")
