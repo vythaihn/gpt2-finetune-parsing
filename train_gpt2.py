@@ -118,7 +118,7 @@ def main():
                              '(downloaded automatically if necessary)')
     parser.add_argument('--epochs', type=int, metavar='N',
                         help='number of epochs to train')
-    parser.add_argument('--lr', type=float, metavar='LR', default=0.0005,
+    parser.add_argument('--lr', type=float, metavar='LR', default=0.00005,
                         help='learning rate')
     parser.add_argument('--save-model', default="test",
                         help='saves the current model at path')
@@ -203,6 +203,14 @@ def main():
                 eval_epoch()
                 eval_keywords(keywords)
                 model.train()
+
+                if args.train:
+                    torch.save(model.state_dict(), "saved_model/" + args.save_model + "_" + args.model_name + '.pt')
+                else:
+                    torch.save(model.state_dict(),
+                               "saved_model/" + "continued_" + args.save_model + "_" + args.model_name + '.pt')
+                print("Saved model!")
+                log_file.write("Saved model!")
 
             if step%500==0:
                 print("Currently at step ", step, "/", len(train_dataloader))
