@@ -142,7 +142,7 @@ def main():
         for keyword in keywords:
             input_seq = keyword if args.tokenizer=="tokenizer/tokenizer_bert" else "<s> " + keyword
 
-            generated = torch.tensor(tokenizer.encode(input_seq)).unsqueeze(0)
+            generated = torch.tensor(tokenizer.encode(input_seq, add_special_tokens=True)).unsqueeze(0)
 
             #print(generated)
             generated = generated.to(device)
