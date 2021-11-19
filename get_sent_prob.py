@@ -241,7 +241,7 @@ OPN (_NOUN t )_NOUN )_NP )_PP )_NP )_PP )_VP (_PUNCT . )_PUNCT )_S )_ROOT',
                  ]
 
 
-    model.load_state_dict(torch.load("saved_model/" +  + args.save_model  + "_" + args.model_name + '.pt'))
+    model.load_state_dict(torch.load("saved_model/" +  args.save_model  + "_" + args.model_name + '.pt'))
     """
     TODO:
     """
