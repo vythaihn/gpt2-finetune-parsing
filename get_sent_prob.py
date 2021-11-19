@@ -138,27 +138,6 @@ def main():
 
     log_file.flush()
 
-    def eval_keywords(keywords):
-        model.eval()
-        for keyword in keywords:
-            input_seq = keyword if args.tokenizer=="tokenizer/tokenizer_bert" else "<s> " + keyword
-
-            generated = torch.tensor(tokenizer.encode(input_seq)).unsqueeze(0)
-
-            #print(generated)
-            generated = generated.to(device)
-            sample_outputs = model.generate(
-                generated,
-                do_sample=True,
-                top_k=30,
-                max_length=600,
-                top_p=0.90,
-                num_return_sequences=2
-            )
-            for i, sample_output in enumerate(sample_outputs):
-                print("{}: {}".format(i, tokenizer.decode(sample_output, skip_special_tokens=True)))
-                log_file.write("{}: {} \n".format(i, tokenizer.decode(sample_output, skip_special_tokens=True)))
-
     def sent_scoring(sentence, tokenizer_type):
         assert model is not None
         assert tokenizer is not None
@@ -169,7 +148,7 @@ def main():
             processed_sent = ' '.join([word.replace("_", " ") if ("(_" not in word and ")_" not in word) else word for word in words]).strip()
             encodings = torch.tensor(tokenizer.encode("<s> " + processed_sent + " </s>", truncation = True, max_length = 1000)).unsqueeze(0)
 
-        error = [0 for v in encodings['input_ids'] if v is None]
+        error = [0 for v in encodings if v is None]
 
         if error == []:
             # input_ids = torch.tensor(tokenizer.encode(text)).unsqueeze(0)  # Batch size 1
