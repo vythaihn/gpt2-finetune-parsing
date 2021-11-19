@@ -257,8 +257,6 @@ def main():
         else:
             tokenizer = AutoTokenizer.from_pretrained(args.tokenizer)
 
-
-
         configuration = GPT2Config(
             bos_token_id=tokenizer.bos_token_id,
             eos_token_id=tokenizer.eos_token_id
@@ -300,6 +298,8 @@ def main():
 
         if args.eval:
             model.load_state_dict(torch.load(args.save_model+ "_" + args.model_name))
+            eval_keywords(keywords)
+
             """
             TODO:
             """
