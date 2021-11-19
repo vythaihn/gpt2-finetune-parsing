@@ -263,11 +263,18 @@ def main():
             eos_token_id=tokenizer.eos_token_id
         )
 
+        """
         configuration_GPT2_neo = GPTNeoConfig(
             vocab_size=tokenizer.vocab_size,
             bos_token_id=tokenizer.bos_token_id,
             eos_token_id=tokenizer.eos_token_id
         )
+        """
+
+        configuration_GPT2_neo = GPTNeoConfig.from_pretrained("NlpHUST/gpt-neo-vi-small", output_hidden_states=False)
+        configuration_GPT2_neo.bos_token_id = tokenizer.bos_token_id
+        configuration_GPT2_neo.eos_token_id = tokenizer.eos_token_id
+        configuration_GPT2_neo.vocab_size = tokenizer.vocab_size
 
         if args.model_name=="gpt2":
             model = GPT2LMHeadModel.from_pretrained("gpt2", config=configuration_GPT2)
