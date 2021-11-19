@@ -297,9 +297,8 @@ def main():
         validation_dataloader = DataLoader(val_set, sampler=SequentialSampler(val_set), batch_size=args.batch_size)
 
         if args.eval:
-            model.load_state_dict(torch.load(args.save_model+ "_" + args.model_name))
+            model.load_state_dict(torch.load("saved_model/" +  + args.save_model  + "_" + args.model_name + '.pt'))
             eval_keywords(keywords)
-
             """
             TODO:
             """
