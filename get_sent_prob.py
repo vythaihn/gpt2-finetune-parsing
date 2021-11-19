@@ -165,7 +165,9 @@ def main():
         if tokenizer_type == "bert":
             encodings = torch.tensor(tokenizer.encode(sentence, truncation = True, max_length = 1000)).unsqueeze(0)
         else:
-            encodings = torch.tensor(tokenizer.encode("<s> " + sentence + " </s>", truncation = True, max_length = 1000)).unsqueeze(0)
+            words = sentence.split()
+            processed_sent = ' '.join([word.replace("_", " ") if ("(_" not in word and ")_" not in word) else word for word in words]).strip()
+            encodings = torch.tensor(tokenizer.encode("<s> " + processed_sent + " </s>", truncation = True, max_length = 1000)).unsqueeze(0)
 
         error = [0 for v in encodings['input_ids'] if v is None]
 
@@ -225,7 +227,18 @@ def main():
     model = model.to(device)
     model.eval()
 
-    sentences = []
+    sentences = ['(_ROOT (_S (_CCONJ Nhưng )_CCONJ (_PP (_ADP trên )_ADP (_NP (_NOUN mảnh )_NOUN (_NOUN đất )_NOUN (_NP (_NOUN Đức_Phổ )_NOUN )_NP (_PROPN này )_PROPN )_NP )_PP (_VP (_X \
+vẫn )_X (_X còn )_X (_AP (_ADJ nặng )_ADJ )_AP (_NP (_DET những )_DET (_NOUN đau_thương )_NOUN )_NP )_VP (_PUNCT , )_PUNCT (_NP (_NOUN ngày )_NOUN (_PROPN từng )_PROPN \
+(_NOUN ngày )_NOUN )_NP (_S (_NP (_NOUN máu )_NOUN )_NP (_VP (_X vẫn )_X (_VERB rơi )_VERB )_VP )_S (_PUNCT , )_PUNCT (_S (_NP (_NOUN xương )_NOUN )_NP (_VP (_X vẫn )_X\
+ (_VERB đổ )_VERB )_VP )_S (_PUNCT . )_PUNCT )_S )_ROOT',
+                 '(_ROOT (_S (_VP (_VERB Có )_VERB (_NP (_NOUN cái )_NOUN (_PROPN gì )_PROPN (_VP (_VERB mong_đợi )_VERB (_VERB tha_thiết )_VERB )_VP )_NP (_PP (_ADP trong )_ADP (_NP (_N\
+OUN lòng )_NOUN )_NP )_PP )_VP (_PUNCT . )_PUNCT )_S )_ROOT',
+                 '(_ROOT (_S (_NP (_PROPN Nó )_PROPN )_NP (_VP (_VERB tức_giận )_VERB (_PP (_ADP trước )_ADP (_NP (_VERB hành_động )_VERB (_PP (_ADP của )_ADP (_NP (_PROPN chúng_tôi )_PR\
+OPN )_NP )_PP )_NP )_PP )_VP (_PUNCT . )_PUNCT )_S )_ROOT',
+                 '(_ROOT (_S (_NP (_PROPN Nó )_PROPN )_NP (_VP (_VERB tức )_VERB (_VERB giận )_VERB (_PP (_ADP trước )_ADP (_NP (_VERB hành_động )_VERB (_PP (_ADP của )_ADP (_NP (_PROPN chúng PR\
+OPN (_NOUN t )_NOUN )_NP )_PP )_NP )_PP )_VP (_PUNCT . )_PUNCT )_S )_ROOT',
+                 '(_ROOT (S_ (_NP (_NOUN Nó )_NOUN )_NP (_VERB là )_VERB (_VP (_DET con )_DET (_NOUN mèo )_NOUN )_VP )_'
+                 ]
 
 
     if args.eval:
@@ -237,6 +250,7 @@ def main():
         best_sent = None
         for idx, sent in enumerate(sentences):
             score = sent_scoring(sent, tokenizer_type=tok_type)
+            print("score for ", idx, " is ", score)
             if score < min_score:
                 min_score = score
                 best_sent = idx
