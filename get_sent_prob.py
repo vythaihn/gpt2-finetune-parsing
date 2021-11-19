@@ -241,19 +241,18 @@ OPN (_NOUN t )_NOUN )_NP )_PP )_NP )_PP )_VP (_PUNCT . )_PUNCT )_S )_ROOT',
                  ]
 
 
-    if args.eval:
-        model.load_state_dict(torch.load("saved_model/" +  + args.save_model  + "_" + args.model_name + '.pt'))
-        """
-        TODO:
-        """
-        min_score = float("inf")
-        best_sent = None
-        for idx, sent in enumerate(sentences):
-            score = sent_scoring(sent, tokenizer_type=tok_type)
-            print("score for ", idx, " is ", score)
-            if score < min_score:
-                min_score = score
-                best_sent = idx
+    model.load_state_dict(torch.load("saved_model/" +  + args.save_model  + "_" + args.model_name + '.pt'))
+    """
+    TODO:
+    """
+    min_score = float("inf")
+    best_sent = None
+    for idx, sent in enumerate(sentences):
+        score = sent_scoring(sent, tokenizer_type=tok_type)
+        print("score for ", idx, " is ", score)
+        if score < min_score:
+            min_score = score
+            best_sent = idx
 
     log_file.close()
 if __name__ == "__main__":
