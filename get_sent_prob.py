@@ -187,8 +187,8 @@ OUN lòng )_NOUN )_NP )_PP )_VP (_PUNCT . )_PUNCT )_S )_ROOT',
 OPN )_NP )_PP )_NP )_PP )_VP (_PUNCT . )_PUNCT )_S )_ROOT',
                  '(_ROOT (_S (_NP (_PROPN Nó )_PROPN )_NP (_VP (_VERB tức )_VERB (_VERB giận )_VERB (_PP (_ADP trước )_ADP (_NP (_VERB hành_động )_VERB (_PP (_ADP của )_ADP (_NP (_PROPN chúng PR\
 OPN (_NOUN t )_NOUN )_NP )_PP )_NP )_PP )_VP (_PUNCT . )_PUNCT )_S )_ROOT',
-                 '(_ROOT (S_ (_NP (_NOUN Nó )_NOUN )_NP (_VERB là )_VERB (_VP (_DET con )_DET (_NOUN mèo )_NOUN )_VP )_',
-                 '(_ROOT (S_ (_NP (_PROPN Nó )_PROPN )_NP (_AUX là )_AUX (_NP (_NOUN con )_NOUN (_NOUN mèo )_NOUN )_NP )_'
+                 '(_ROOT (_S (_NP (_NOUN Nó )_NOUN )_NP (_VERB là )_VERB (_VP (_DET con )_DET (_NOUN mèo )_NOUN )_VP )_S )_ROOT',
+                 '(_ROOT (_S (_NP (_PROPN Nó )_PROPN )_NP (_AUX là )_AUX (_NP (_NOUN con )_NOUN (_NOUN mèo )_NOUN )_NP )_S )_ROOT'
                  ]
 
 
