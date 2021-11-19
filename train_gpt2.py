@@ -1,4 +1,4 @@
-
+from torch.optim.lr_scheduler import ExponentialLR
 from transformers import GPT2Tokenizer
 #get pretrained tokenizer
 from transformers import AutoTokenizer
@@ -11,7 +11,7 @@ import datetime
 import numpy as np
 from torch.utils.data import random_split
 from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
-from transformers import GPT2LMHeadModel, GPT2Config, GPTNeoForCausalLM
+from transformers import GPT2LMHeadModel, GPT2Config, GPTNeoForCausalLM, GPTNeoConfig
 #configuration = GPT2Config.from_pretrained('gpt2', output_hidden_states=False)
 import argparse
 """
@@ -257,17 +257,24 @@ def main():
         else:
             tokenizer = AutoTokenizer.from_pretrained(args.tokenizer)
 
-        configuration = GPT2Config(
+        configuration_GPT2 = GPT2Config(
+            vocab_size=tokenizer.vocab_size,
+            bos_token_id=tokenizer.bos_token_id,
+            eos_token_id=tokenizer.eos_token_id
+        )
+
+        configuration_GPT2_neo = GPT2Config(
+            vocab_size=tokenizer.vocab_size,
             bos_token_id=tokenizer.bos_token_id,
             eos_token_id=tokenizer.eos_token_id
         )
 
         if args.model_name=="gpt2":
-            model = GPT2LMHeadModel.from_pretrained("gpt2", config=configuration)
+            model = GPT2LMHeadModel.from_pretrained("gpt2", config=configuration_GPT2)
         elif args.model_name=="gpt-neo-vi-small":
-            model = GPTNeoForCausalLM.from_pretrained("NlpHUST/gpt-neo-vi-small",config=configuration)
+            model = GPTNeoForCausalLM.from_pretrained("NlpHUST/gpt-neo-vi-small",config=configuration_GPT2_neo)
         elif args.model_name=="gpt2-viwiki":
-            model = GPT2LMHeadModel.from_pretrained('danghuy1999/gpt2-viwiki', config=configuration)
+            model = GPT2LMHeadModel.from_pretrained('danghuy1999/gpt2-viwiki', config=configuration_GPT2)
 
         # Notice: resize_token_embeddings expect to receive the full size of the new vocabulary, i.e., the length of the tokenizer.
         # model.resize_token_embeddings(len(tokenizer))
@@ -371,7 +378,6 @@ def main():
 
     if args.train or args.continue_train:
         optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr)
-
         for epoch in range(args.epochs):
             print("Training epoch ", epoch, "...")
             log_file.write("Training epoch " + str(epoch) + "..." + "\n")
