@@ -368,7 +368,7 @@ def main():
     # model.cuda()
 
     if args.train or args.continue_train:
-        optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+        optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr)
 
         for epoch in range(args.epochs):
             print("Training epoch ", epoch, "...")
