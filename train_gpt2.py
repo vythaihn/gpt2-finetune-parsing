@@ -142,7 +142,7 @@ def main():
         for keyword in keywords:
             input_seq = keyword if args.tokenizer=="tokenizer/tokenizer_bert" else "<s> " + keyword
 
-            generated = torch.tensor(tokenizer.encode(input_seq, add_special_tokens=True)).unsqueeze(0)
+            generated = torch.tensor(tokenizer.encode(input_seq)).unsqueeze(0)
 
             #print(generated)
             generated = generated.to(device)
@@ -288,8 +288,8 @@ def main():
         model.resize_token_embeddings(len(tokenizer))
         model = model.to(device)
 
-        val_file = args.data_gold + "vi_vlsp21_dev.brackets"
-        train_file_gold = args.data_gold + "vi_vlsp21_train.brackets"
+        val_file = args.data_gold + "vi_vlsp21_dev_retagged.brackets"
+        train_file_gold = args.data_gold + "vi_vlsp21_train_retagged.brackets"
         train_file_silver = args.data_silver + "vi_silver_250k.lm"
 
         _, val_sents = process_data(args, val_file)
