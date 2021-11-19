@@ -144,7 +144,7 @@ def main():
 
             generated = torch.tensor(tokenizer.encode(input_seq)).unsqueeze(0)
 
-            print(generated)
+            #print(generated)
             generated = generated.to(device)
             sample_outputs = model.generate(
                 generated,
@@ -265,9 +265,9 @@ def main():
         if args.model_name=="gpt2":
             model = GPT2LMHeadModel.from_pretrained("gpt2", config=configuration)
         elif args.model_name=="gpt-neo-vi-small":
-            model = GPTNeoForCausalLM.from_pretrained("NlpHUST/gpt-neo-vi-small")
+            model = GPTNeoForCausalLM.from_pretrained("NlpHUST/gpt-neo-vi-small",config=configuration)
         elif args.model_name=="gpt2-viwiki":
-            model = GPT2LMHeadModel.from_pretrained('danghuy1999/gpt2-viwiki')
+            model = GPT2LMHeadModel.from_pretrained('danghuy1999/gpt2-viwiki', config=configuration)
 
         # Notice: resize_token_embeddings expect to receive the full size of the new vocabulary, i.e., the length of the tokenizer.
         # model.resize_token_embeddings(len(tokenizer))
