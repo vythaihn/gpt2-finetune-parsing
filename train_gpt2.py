@@ -263,7 +263,7 @@ def main():
             eos_token_id=tokenizer.eos_token_id
         )
 
-        configuration_GPT2_neo = GPT2Config(
+        configuration_GPT2_neo = GPTNeoConfig(
             vocab_size=tokenizer.vocab_size,
             bos_token_id=tokenizer.bos_token_id,
             eos_token_id=tokenizer.eos_token_id
