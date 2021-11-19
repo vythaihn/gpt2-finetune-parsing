@@ -24,35 +24,6 @@ tokenizer.add_special_tokens({
 })
 """
 
-
-def tokenize_seq(sent, tokenizer, max_length):
-    return tokenizer(sent, truncation=True, max_length=max_length, padding="max_length")
-class ParsingDataset(Dataset):
-
-    def __init__(self, sentences, tokenizer, tokenizer_type="bert", max_length=1000):
-        self.tokenizer = tokenizer
-        self.input_ids = []
-        self.attn_masks = []
-
-        for sentence in sentences:
-            if tokenizer_type=="bert":
-                encodings = tokenize_seq(sentence, tokenizer, max_length)
-            else:
-                encodings = tokenize_seq("<s> " + sentence + " </s>", tokenizer, max_length)
-            #print(count)
-            #count+=1
-            input_id = [0 for v in encodings['input_ids'] if v is None]
-            if encodings['input_ids'][max_length-1] in (tokenizer.pad_token_id, tokenizer.eos_token_id) and input_id==[]:
-                self.input_ids.append(torch.tensor(encodings['input_ids']))
-                self.attn_masks.append(torch.tensor(encodings['attention_mask']))
-
-    def __len__(self):
-        return len(self.input_ids)
-
-    def __getitem__(self, idx):
-        return self.input_ids[idx], self.attn_masks[idx]
-
-
 def format_time(elapsed):
     return str(datetime.timedelta(seconds=int(round((elapsed)))))
 
@@ -157,7 +128,7 @@ def main():
                 outputs = model(input_ids, labels=input_ids)
             loss, logits = outputs[:2]
             sentence_prob = loss.item()
-            return np.exp(sentence_prob.numpy())
+            return np.exp(sentence_prob)
         else:
             return float("inf")
 
