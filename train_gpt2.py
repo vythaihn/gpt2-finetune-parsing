@@ -251,25 +251,16 @@ def main():
 
     if not args.create_tokenizer:
 
-        if args.model_name=="gpt-neo-vi-small":
-            tokenizer = GPT2Tokenizer.from_pretrained(args.tokenizer)
-
-        else:
+        if tok_type == "bert":
             tokenizer = AutoTokenizer.from_pretrained(args.tokenizer)
+        else:
+            tokenizer = GPT2Tokenizer.from_pretrained(args.tokenizer)
 
         configuration_GPT2 = GPT2Config(
             vocab_size=tokenizer.vocab_size,
             bos_token_id=tokenizer.bos_token_id,
             eos_token_id=tokenizer.eos_token_id
         )
-
-        """
-        configuration_GPT2_neo = GPTNeoConfig(
-            vocab_size=tokenizer.vocab_size,
-            bos_token_id=tokenizer.bos_token_id,
-            eos_token_id=tokenizer.eos_token_id
-        )
-        """
 
         configuration_GPT2_neo = GPTNeoConfig.from_pretrained("NlpHUST/gpt-neo-vi-small", output_hidden_states=False)
         configuration_GPT2_neo.bos_token_id = tokenizer.bos_token_id
