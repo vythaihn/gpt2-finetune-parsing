@@ -144,7 +144,6 @@ def main():
         tokenizer = GPT2Tokenizer.from_pretrained(args.tokenizer)
 
     configuration_GPT2 = GPT2Config(
-        vocab_size=tokenizer.vocab_size,
         bos_token_id=tokenizer.bos_token_id,
         eos_token_id=tokenizer.eos_token_id
     )
