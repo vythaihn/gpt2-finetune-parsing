@@ -145,7 +145,7 @@ def main():
             generated = torch.tensor(tokenizer.encode(input_seq)).unsqueeze(0)
             print(generated)
             if  args.tokenizer=="tokenizer/tokenizer_bert":
-                generated = torch.tensor([idx if idx != tokenizer.eos_token_id else tokenizer.pad_token_id for idx in generated])
+                generated = torch.tensor([[idx if idx != tokenizer.eos_token_id else tokenizer.pad_token_id for idx in generated[0]]])
 
             #print(generated)
             generated = generated.to(device)
