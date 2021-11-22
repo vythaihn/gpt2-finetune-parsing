@@ -143,6 +143,7 @@ def main():
             input_seq = keyword if args.tokenizer=="tokenizer/tokenizer_bert" else "<s> " + keyword
 
             generated = torch.tensor(tokenizer.encode(input_seq)).unsqueeze(0)
+            print(generated)
             if  args.tokenizer=="tokenizer/tokenizer_bert":
                 generated = torch.tensor([idx if idx != tokenizer.eos_token_id else tokenizer.pad_token_id for idx in generated])
 
@@ -201,7 +202,6 @@ def main():
                 total_train_loss = 0
 
                 eval_epoch()
-                eval_keywords(keywords)
                 model.train()
 
                 if args.train:
@@ -210,6 +210,8 @@ def main():
                     torch.save(model.state_dict(), "saved_model/" + "continued_" + args.save_model + "_" + args.model_name + '.pt')
                 print("Saved model!")
                 log_file.write("Saved model!")
+                eval_keywords(keywords)
+
 
             if step%500==0:
                 print("Currently at step ", step, "/", len(train_dataloader))
