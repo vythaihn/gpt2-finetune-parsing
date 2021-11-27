@@ -8,6 +8,7 @@ tokenizer = GPT2Tokenizer.from_pretrained('stanza_dataset/tokenized_data')
 from torch.utils.data import Dataset
 import torch
 import datetime
+import random
 import numpy as np
 from torch.utils.data import random_split
 from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
@@ -23,7 +24,7 @@ tokenizer.add_special_tokens({
   "mask_token": "<mask>"
 })
 """
-
+random.seed(3)
 
 def tokenize_seq(sent, tokenizer, max_length):
     return tokenizer(sent, truncation=True, max_length=max_length, padding="max_length")
@@ -130,6 +131,7 @@ def main():
                         help='saves the current model at path')
     args = parser.parse_args()
 
+    best_loss = float("inf")
     if args.train:
         log_file = open("saved_model/" + "logging_" + args.save_model + "_" + args.model_name + '.pt', 'w')
         log_file.write("hello world!")
@@ -175,6 +177,7 @@ def main():
     import time
     # do one epoch for training
     def train_epoch():
+        nonlocal best_loss
         t0 = time.time()
         total_train_loss = 0
         model.train()
@@ -201,15 +204,17 @@ def main():
                 t0 = time.time()
                 total_train_loss = 0
 
-                eval_epoch()
+                val_loss = eval_epoch()
                 model.train()
 
-                if args.train:
+                if args.train and best_loss > val_loss:
                     torch.save(model.state_dict(), "saved_model/" + args.save_model + "_" + args.model_name + '.pt')
-                else:
+                    print("Saved model!")
+
+                elif args.continue_train and best_loss > val_loss:
                     torch.save(model.state_dict(), "saved_model/" + "continued_" + args.save_model + "_" + args.model_name + '.pt')
-                print("Saved model!")
-                log_file.write("Saved model!")
+                    print("Saved model!")
+
                 eval_keywords(keywords)
 
 
@@ -250,6 +255,8 @@ def main():
         print("elapsed time for 1 eval epoch : ", elapsed_time)
         log_file.write("elapsed time for 1 eval epoch : " + str(elapsed_time)+ "\n")
 
+        return avg_val_loss
+
 
     tok_type = "bert" if args.tokenizer == "tokenizer/tokenizer_bert" else "difff"
 
@@ -285,17 +292,23 @@ def main():
         val_file = args.data_gold + "vi_vlsp21_dev_retagged.brackets"
         train_file_gold = args.data_gold + "vi_vlsp21_train_retagged.brackets"
         train_file_silver = args.data_silver + "vi_silver_250k.lm"
+        quad_file_silver = args.data_silver + "vi_silver_250k.lm"
 
         _, val_sents = process_data(args, val_file)
         new_token_list, train_sents_gold = process_data(args, train_file_gold)
-        new_token_list, train_sents_silver = process_data(args, train_file_silver)
+        _, train_sents_silver = process_data(args, train_file_silver)
+        _, quad_silver = process_data(args, quad_file_silver)
+
+        train_sents_silver += quad_silver
+        random.shuffle(train_sents_silver)
         #max_len_val = max([len(tokenizer.encode(s)) for s in val_sents])
-        val_sents += train_sents_silver[:5000]
-        train_sents_silver = train_sents_silver[5000:]
+        val_sents += train_sents_silver[:10000]
+        train_sents_silver = train_sents_silver[10000:]
 
         max_len_val = args.max_length
 
         train_sents = train_sents_gold + train_sents_silver
+        random.shuffle(train_sents)
 
         print(f"max_len_val {max_len_val}")
         log_file.write(f"max_len_val {max_len_val} \n")
@@ -383,12 +396,17 @@ def main():
             print("Training epoch ", epoch, "...")
             log_file.write("Training epoch " + str(epoch) + "..." + "\n")
             train_epoch()
-            eval_epoch()
-            eval_keywords(keywords)
+
+        val_loss = eval_epoch()
+        eval_keywords(keywords)
+
         if args.train:
-            torch.save(model.state_dict(), "saved_model/" + args.save_model  + "_" + args.model_name + '.pt')
+            torch.save(model.state_dict(), "saved_model/latest_" + args.save_model  + "_" + args.model_name + '.pt')
+            print("saved latest model...")
         else:
-            torch.save(model.state_dict(), "saved_model/" + "continued_" + args.save_model  + "_" + args.model_name + '.pt')
+            torch.save(model.state_dict(), "saved_model/" + "latest_continued_" + args.save_model  + "_" + args.model_name + '.pt')
+            print("saved latest model...")
+
 
     log_file.close()
 if __name__ == "__main__":
