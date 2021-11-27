@@ -192,8 +192,8 @@ def main():
             loss.backward()
             optimizer.step()
 
-            if step%2000==1999:
-                avg_train_loss = total_train_loss / 2000
+            if step%5000==4999:
+                avg_train_loss = total_train_loss / 5000
                 print("avg_train_loss", avg_train_loss)
                 log_file.write("avg_train_loss" + str(avg_train_loss) + "\n")
 
@@ -218,7 +218,7 @@ def main():
                 eval_keywords(keywords)
 
 
-            if step%500==0:
+            if step%1000==0:
                 print("Currently at step ", step, "/", len(train_dataloader))
                 log_file.write("Currently at step " + str(step) + "/" + str(len(train_dataloader))+ "\n")
                 log_file.flush()
@@ -291,8 +291,8 @@ def main():
 
         val_file = args.data_gold + "vi_vlsp21_dev_retagged.brackets"
         train_file_gold = args.data_gold + "vi_vlsp21_train_retagged.brackets"
-        train_file_silver = args.data_silver + "vi_silver_250k.lm"
-        quad_file_silver = args.data_silver + "vi_silver_250k.lm"
+        train_file_silver = args.data_silver + "vi_silver_1000k.lm"
+        quad_file_silver = args.data_silver + "vi_silver_quad.lm"
 
         _, val_sents = process_data(args, val_file)
         new_token_list, train_sents_gold = process_data(args, train_file_gold)
