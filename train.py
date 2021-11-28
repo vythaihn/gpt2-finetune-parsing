@@ -313,8 +313,8 @@ def main():
 
     print(train_set[0])
 
-    a, b = train_set[0]
-    print(tokenizer.convert_ids_to_tokens(a))
+    #a, b = train_set[0]
+    #print(tokenizer.convert_ids_to_tokens(a))
 
     # Create default config
     # Load pretrained gpt2
