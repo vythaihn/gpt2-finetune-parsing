@@ -8,6 +8,8 @@ tokenizer = GPT2Tokenizer.from_pretrained('stanza_dataset/tokenized_data')
 from torch.utils.data import Dataset
 import torch
 import datetime
+from transformers import Trainer, TrainingArguments
+
 import random
 import numpy as np
 from torch.utils.data import random_split
@@ -331,33 +333,7 @@ def main():
             eval_keywords(keywords)
 
 
-    if args.create_tokenizer:
-        # add new tokens into the tokenizer
-        if args.model_name=="gpt2":
-            tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
-        elif args.model_name=="gpt-neo-vi-small":
-            tokenizer = GPT2Tokenizer.from_pretrained("NlpHUST/gpt-neo-vi-small")
-        #elif args.model_name=="gpt2-viwiki":
-        #    model = GPT2LMHeadModel.from_pretrained('danghuy1999/gpt2-viwiki')
-        #tokenizer = AutoTokenizer.from_pretrained(args.tokenizer)
 
-        num_added_toks = tokenizer.add_tokens(list(new_token_list))
-        tokenizer.add_special_tokens({
-            "eos_token":"</s>",
-            "bos_token":"<s>",
-            "unk_token":"<unk>",
-            "pad_token": "<pad>",
-            "mask_token":"<mask>"
-        })
-
-        tokenizer.save_pretrained("/tokenizer_" + args.model_name+ "/")
-
-    # sanity_check
-    """
-    tokens = tokenizer.encode("(_ROOT (_S (_NP (_N Số_phận )_N (_PP (_Pre của )_Pre (_NP (_Det những )_Det ")
-    print(tokens)
-    print(tokenizer.convert_ids_to_tokens(tokens))
-    """
 
     #max_len_train = max([len(tokenizer.encode(s)) for s in train_sents])
     max_len_train = args.max_length if tok_type=="bert" else args.max_length
@@ -390,23 +366,26 @@ def main():
     # Create device
     # model.cuda()
 
-    if args.train or args.continue_train:
-        optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr)
-        for epoch in range(args.epochs):
-            print("Training epoch ", epoch, "...")
-            log_file.write("Training epoch " + str(epoch) + "..." + "\n")
-            train_epoch()
+    training_args = TrainingArguments(
+        output_dir="./saved_model/",  # The output directory
+        overwrite_output_dir=True,  # overwrite the content of the output directory
+        num_train_epochs=3,  # number of training epochs
+        per_device_train_batch_size=16,  # batch size for training
+        per_device_eval_batch_size=16,  # batch size for evaluation
+        eval_steps=4000,  # Number of update steps between two evaluations.
+        save_steps=4000,  # after # steps model is saved
+        warmup_steps=2000,  # number of warmup steps for learning rate scheduler
+        prediction_loss_only=True,
+    )
 
-        val_loss = eval_epoch()
-        eval_keywords(keywords)
+    trainer = Trainer(
+        model=model,
+        args=training_args,
+        train_dataset=train_set,
+        eval_dataset=val_set,
+    )
 
-        if args.train:
-            torch.save(model.state_dict(), "saved_model/latest_" + args.save_model  + "_" + args.model_name + '.pt')
-            print("saved latest model...")
-        else:
-            torch.save(model.state_dict(), "saved_model/" + "latest_continued_" + args.save_model  + "_" + args.model_name + '.pt')
-            print("saved latest model...")
-
+    trainer.train()
 
     log_file.close()
 if __name__ == "__main__":
