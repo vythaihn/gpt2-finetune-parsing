@@ -53,8 +53,19 @@ class ParsingDataset(Dataset):
         return len(self.input_ids)
 
     def __getitem__(self, idx):
-        return self.input_ids[idx], self.attn_masks[idx]
+        return {'input_ids': self.input_ids[idx],
+                'attention_mask': self.attn_masks[idx],
+                'labels': self.input_ids[idx]}
+        #return self.input_ids[idx], self.attn_masks[idx]
 
+
+def dummy_data_collector(features):
+    batch = {}
+    batch['input_ids'] = torch.stack([f['input_ids'] for f in features])
+    batch['attention_mask'] = torch.stack([f['attention_mask'] for f in features])
+    batch['labels'] = torch.stack([f['labels'] for f in features])
+
+    return batch
 
 def format_time(elapsed):
     return str(datetime.timedelta(seconds=int(round((elapsed)))))
@@ -178,63 +189,7 @@ def main():
 
     import time
     # do one epoch for training
-    def train_epoch():
-        nonlocal best_loss
-        t0 = time.time()
-        total_train_loss = 0
-        model.train()
 
-        for step, batch in enumerate(train_dataloader):
-            model.zero_grad()
-            outputs = process_one_batch(batch)
-            loss = outputs[0]
-            batch_loss = loss.item()
-            total_train_loss += batch_loss
-
-            loss.backward()
-            optimizer.step()
-
-            if step%5000==4999:
-                avg_train_loss = total_train_loss / 5000
-                print("avg_train_loss", avg_train_loss)
-                log_file.write("avg_train_loss" + str(avg_train_loss) + "\n")
-
-                elapsed_time = format_time(time.time() - t0)
-                print("elapsed time for 10k step : ", elapsed_time)
-                log_file.write("elapsed time for 10k step : " + str(elapsed_time) + "\n")
-                log_file.flush()
-                t0 = time.time()
-                total_train_loss = 0
-
-                val_loss = eval_epoch()
-                model.train()
-
-                if args.train and best_loss > val_loss:
-                    torch.save(model.state_dict(), "saved_model/" + args.save_model + "_" + args.model_name + '.pt')
-                    print("Saved model!")
-
-                elif args.continue_train and best_loss > val_loss:
-                    torch.save(model.state_dict(), "saved_model/" + "continued_" + args.save_model + "_" + args.model_name + '.pt')
-                    print("Saved model!")
-
-                eval_keywords(keywords)
-
-
-            if step%1000==0:
-                print("Currently at step ", step, "/", len(train_dataloader))
-                log_file.write("Currently at step " + str(step) + "/" + str(len(train_dataloader))+ "\n")
-                log_file.flush()
-
-
-        """
-        avg_train_loss = total_train_loss / len(train_dataloader)
-        print("avg_train_loss", avg_train_loss)
-        log_file.write("avg_train_loss", avg_train_loss)
-
-        elapsed_time = format_time(time.time() - t0)
-        print("elapsed time for 1 training epoch : ", elapsed_time)
-        log_file.write("elapsed time for 1 training epoch : ", elapsed_time)
-        """
 
     # do one epoch for eval
     def eval_epoch():
@@ -304,8 +259,8 @@ def main():
         train_sents_silver += quad_silver
         random.shuffle(train_sents_silver)
         #max_len_val = max([len(tokenizer.encode(s)) for s in val_sents])
-        val_sents += train_sents_silver[:10000]
-        train_sents_silver = train_sents_silver[10000:]
+        val_sents += train_sents_silver[:1000]
+        train_sents_silver = train_sents_silver[1000:5000]
 
         max_len_val = args.max_length
 
@@ -383,6 +338,7 @@ def main():
         args=training_args,
         train_dataset=train_set,
         eval_dataset=val_set,
+        data_collator=dummy_data_collector
     )
 
     trainer.train()
