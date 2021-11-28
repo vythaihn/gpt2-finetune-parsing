@@ -325,8 +325,8 @@ def main():
         output_dir="./saved_model/",  # The output directory
         overwrite_output_dir=True,  # overwrite the content of the output directory
         num_train_epochs=3,  # number of training epochs
-        per_device_train_batch_size=16,  # batch size for training
-        per_device_eval_batch_size=16,  # batch size for evaluation
+        per_device_train_batch_size=args.batch_size,  # batch size for training
+        per_device_eval_batch_size=args.batch_size,  # batch size for evaluation
         eval_steps=4000,  # Number of update steps between two evaluations.
         save_steps=4000,  # after # steps model is saved
         warmup_steps=2000,  # number of warmup steps for learning rate scheduler
