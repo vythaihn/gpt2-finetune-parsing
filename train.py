@@ -259,8 +259,8 @@ def main():
         train_sents_silver += quad_silver
         random.shuffle(train_sents_silver)
         #max_len_val = max([len(tokenizer.encode(s)) for s in val_sents])
-        val_sents += train_sents_silver[:1000]
-        train_sents_silver = train_sents_silver[1000:5000]
+        val_sents += train_sents_silver[:10000]
+        train_sents_silver = train_sents_silver[10000:]
 
         max_len_val = args.max_length
 
@@ -324,13 +324,14 @@ def main():
     training_args = TrainingArguments(
         output_dir="./saved_model/",  # The output directory
         overwrite_output_dir=True,  # overwrite the content of the output directory
-        num_train_epochs=3,  # number of training epochs
+        num_train_epochs=args.epochs,  # number of training epochs
         per_device_train_batch_size=args.batch_size,  # batch size for training
         per_device_eval_batch_size=args.batch_size,  # batch size for evaluation
-        eval_steps=4000,  # Number of update steps between two evaluations.
-        save_steps=4000,  # after # steps model is saved
+        eval_steps=9000,  # Number of update steps between two evaluations.
+        save_steps=9000,  # after # steps model is saved
         warmup_steps=2000,  # number of warmup steps for learning rate scheduler
         prediction_loss_only=True,
+        learning_rate=args.lr
     )
 
     trainer = Trainer(
